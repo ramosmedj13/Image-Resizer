@@ -1,12 +1,14 @@
 package imageresizer;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ImageResizerApp {
     private ImageResizer imageResizer;
     private ImageProcessor imageProcessor;
+    private static final Logger logger = Logger.getLogger(ImageResizerApp.class.getName());
 
     public ImageResizerApp() {
         imageResizer = new ImageResizer();
@@ -44,12 +46,20 @@ public class ImageResizerApp {
                 throw new IllegalArgumentException("Invalid output format.");
             }
 
+            System.out.print("Enter the compression quality (0.0 - 1.0): ");
+            float quality = scanner.nextFloat();
+
+            if (quality < 0.0 || quality > 1.0) {
+                throw new IllegalArgumentException("Invalid compression quality.");
+            }
+
             BufferedImage resizedImage = imageResizer.resizeImage(image, targetWidth, targetHeight);
 
-            imageProcessor.saveImage(resizedImage, outputPath, outputFormat);
+            imageProcessor.saveImage(resizedImage, outputPath, outputFormat, quality);
             System.out.println("Your image has been resized and saved successfully.");
-        } catch (IOException | IllegalArgumentException e) {
-            System.err.println("Error: " + e.getMessage());
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "An error occurred: " + e.getMessage(), e);
+            System.err.println("An error occurred. Please check the logs for details.");
         } finally {
             scanner.close();
         }
@@ -64,5 +74,16 @@ public class ImageResizerApp {
         }
 
         return false;
+    }
+
+    public void resizeAndSaveImage(String imagePath, int targetWidth, int targetHeight, String outputPath,
+                                   String outputFormat, float quality) {
+        try {
+            BufferedImage image = imageProcessor.loadImage(imagePath);
+            BufferedImage resizedImage = imageResizer.resizeImage(image, targetWidth, targetHeight);
+            imageProcessor.saveImage(resizedImage, outputPath, outputFormat, quality);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "An error occurred: " + e.getMessage(), e);
+        }
     }
 }

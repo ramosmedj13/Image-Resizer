@@ -1,18 +1,70 @@
 package imageresizer;
 
-import javax.imageio.ImageIO;
+import javax.imageio.*;
+import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ImageProcessor {
-    public BufferedImage loadImage(String imagePath) throws IOException {
-        File file = new File(imagePath);
-        return ImageIO.read(file);
+    private static final Logger logger = Logger.getLogger(ImageProcessor.class.getName());
+
+    public BufferedImage loadImage(String imagePath) {
+        try {
+            File file = new File(imagePath);
+
+            if (!file.exists()) {
+                throw new IOException("File not found: " + imagePath);
+            }
+
+            String fileExtension = getFileExtension(imagePath);
+
+            Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName(fileExtension);
+
+            if (!readers.hasNext()) {
+                throw new IllegalArgumentException("Unsupported image format: " + fileExtension);
+            }
+
+            ImageReader reader = readers.next();
+            reader.setInput(ImageIO.createImageInputStream(file));
+
+            return reader.read(0);
+        } catch (IOException | IllegalArgumentException e) {
+            logger.log(Level.SEVERE, "Error loading image: " + e.getMessage(), e);
+            return null;
+        }
     }
 
-    public void saveImage(BufferedImage image, String outputPath, String format) throws IOException {
+    private String getFileExtension(String filePath) {
+        int dotIndex = filePath.lastIndexOf('.');
+        if (dotIndex == -1 || dotIndex == filePath.length() - 1) {
+            throw new IllegalArgumentException("Invalid file path: " + filePath);
+        }
+        return filePath.substring(dotIndex + 1);
+    }
+
+    public void saveImage(BufferedImage image, String outputPath, String outputFormat, float quality) throws IOException {
         File file = new File(outputPath);
-        ImageIO.write(image, format, file);
+        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(outputFormat);
+
+        if (!writers.hasNext()) {
+            throw new IllegalArgumentException("Unsupported image format: " + outputFormat);
+        }
+
+        ImageWriter writer = writers.next();
+        ImageWriteParam writeParam = writer.getDefaultWriteParam();
+        writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+        writeParam.setCompressionQuality(quality);
+
+        ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(file);
+        writer.setOutput(imageOutputStream);
+
+        writer.write(null, new IIOImage(image, null, null), writeParam);
+
+        imageOutputStream.close();
+        writer.dispose();
     }
 }
