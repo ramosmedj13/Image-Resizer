@@ -2,6 +2,7 @@ package gui;
 
 import imageresizer.ImageResizerApp;
 import javafx.application.Application;
+import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -18,7 +19,7 @@ public class ImageResizerGUI extends Application {
     public void start(Stage primaryStage) {
         app = new ImageResizerApp();
 
-        primaryStage.setTitle("Image Resizer");
+        primaryStage.setTitle("Image Resizer - GUI");
         BorderPane root = new BorderPane();
 
         // Create UI components
@@ -30,14 +31,11 @@ public class ImageResizerGUI extends Application {
         TextField widthTextField = new TextField();
         Label heightLabel = new Label("Target Height:");
         TextField heightTextField = new TextField();
-        Label outputPathLabel = new Label("Output Path:");
-        TextField outputPathTextField = new TextField();
-        Label outputFormatLabel = new Label("Output Format:");
-        TextField outputFormatTextField = new TextField();
-        Label qualityLabel = new Label("Compression Quality (0.0 - 1.0):");
-        TextField qualityTextField = new TextField();
         Button resizeButton = new Button("Resize");
         Label outputLabel = new Label("");
+        ProgressIndicator progressIndicator = new ProgressIndicator();
+        HBox progressBox = new HBox(progressIndicator);
+        progressBox.setVisible(false); // Initially hidden
 
         // Configure components
         vBox.getChildren().addAll(
@@ -45,31 +43,47 @@ public class ImageResizerGUI extends Application {
                 imagePathLabel, imagePathTextField,
                 widthLabel, widthTextField,
                 heightLabel, heightTextField,
-                outputPathLabel, outputPathTextField,
-                outputFormatLabel, outputFormatTextField,
-                qualityLabel, qualityTextField,
                 resizeButton,
-                outputLabel
+                outputLabel,
+                progressBox
         );
 
         resizeButton.setOnAction(event -> {
             String imagePath = imagePathTextField.getText();
             int width = Integer.parseInt(widthTextField.getText());
             int height = Integer.parseInt(heightTextField.getText());
-            String outputPath = outputPathTextField.getText();
-            String outputFormat = outputFormatTextField.getText().toUpperCase();
-            float quality = Float.parseFloat(qualityTextField.getText());
+            String outputPath = "output.jpg";
+            String outputFormat = "JPG";
+            float quality = 1.0f;
 
             try {
-                app.resizeAndSaveImage(imagePath, width, height, outputPath, outputFormat, quality);
-                outputLabel.setText("Image resized and saved successfully.");
+                progressBox.setVisible(true); // Show progress bar
+                Task<Void> resizingTask = new Task<>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        app.resizeAndSaveImage(imagePath, width, height, outputPath, outputFormat, quality);
+                        return null;
+                    }
+                };
+
+                resizingTask.setOnSucceeded(e -> {
+                    outputLabel.setText("Image resized and saved successfully.");
+                    progressBox.setVisible(false); // Hide progress bar
+                });
+
+                resizingTask.setOnFailed(e -> {
+                    outputLabel.setText("Error: " + e.getSource().getException().getMessage());
+                    progressBox.setVisible(false); // Hide progress bar
+                });
+
+                new Thread(resizingTask).start();
             } catch (Exception e) {
                 outputLabel.setText("Error: " + e.getMessage());
             }
         });
 
         root.setCenter(vBox);
-        Scene scene = new Scene(root, 400, 400); // Adjust the scene size
+        Scene scene = new Scene(root, 400, 300);
         primaryStage.setScene(scene);
 
         primaryStage.show();

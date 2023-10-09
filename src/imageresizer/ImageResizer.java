@@ -6,6 +6,6 @@ import java.awt.image.BufferedImage;
 
 public class ImageResizer {
     public BufferedImage resizeImage(BufferedImage image, int targetWidth, int targetHeight) {
-        return Scalr.resize(image, Scalr.Method.QUALITY, targetWidth, targetHeight);
+        return Scalr.resize(image, Scalr.Method.QUALITY, targetWidth, targetHeight, Scalr.OP_ANTIALIAS);
     }
 }
