@@ -16,10 +16,11 @@ public class ImageResizerApp {
     public void start() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Welcome to the ImageResizer");
-        System.out.print("Enter the path to the image you want to resize: ");
-        String inputImagePath = scanner.nextLine();
 
         try {
+            System.out.print("Enter the path to the image you want to resize: ");
+            String inputImagePath = scanner.nextLine();
+
             BufferedImage image = imageProcessor.loadImage(inputImagePath);
 
             System.out.print("Enter the target width: ");
@@ -27,7 +28,11 @@ public class ImageResizerApp {
             System.out.print("Enter the target height: ");
             int targetHeight = scanner.nextInt();
 
-            BufferedImage resizedImage = imageResizer.resizeImage(image, targetWidth, targetHeight);
+            if (targetWidth <= 0 || targetHeight <= 0) {
+                throw new IllegalArgumentException("Invalid target width or height.");
+            }
+
+            scanner.nextLine(); // Consume the newline character.
 
             System.out.print("Enter the output file path (e.g., output.jpg): ");
             String outputPath = scanner.next();
@@ -35,12 +40,29 @@ public class ImageResizerApp {
             System.out.print("Enter the output format (e.g., JPG): ");
             String outputFormat = scanner.next().toUpperCase();
 
+            if (!isValidFormat(outputFormat)) {
+                throw new IllegalArgumentException("Invalid output format.");
+            }
+
+            BufferedImage resizedImage = imageResizer.resizeImage(image, targetWidth, targetHeight);
+
             imageProcessor.saveImage(resizedImage, outputPath, outputFormat);
             System.out.println("Your image has been resized and saved successfully.");
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             System.err.println("Error: " + e.getMessage());
         } finally {
             scanner.close();
         }
+    }
+
+    private boolean isValidFormat(String format) {
+        String[] validFormats = {"JPG", "JPEG", "PNG", "GIF", "BMP", "TIFF"};
+        for (String validFormat : validFormats) {
+            if (format.equals(validFormat)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
