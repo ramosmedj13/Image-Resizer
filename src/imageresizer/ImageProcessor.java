@@ -9,9 +9,19 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * The ImageProcessor class handles loading and saving images.
+ * It provides methods for loading an image from a file and saving an image to a file.
+ */
 public class ImageProcessor {
     private static final Logger logger = Logger.getLogger(ImageProcessor.class.getName());
 
+    /**
+     * Loads an image from the specified file path.
+     *
+     * @param imagePath The path to the image file to load.
+     * @return The loaded BufferedImage, or null if an error occurs.
+     */
     public BufferedImage loadImage(String imagePath) {
         try {
             File file = new File(imagePath);
@@ -38,6 +48,13 @@ public class ImageProcessor {
         }
     }
 
+    /**
+     * Extracts the file extension from a file path.
+     *
+     * @param filePath The path of the file.
+     * @return The file extension (e.g., "jpg", "png").
+     * @throws IllegalArgumentException If the file path is invalid.
+     */
     private String getFileExtension(String filePath) {
         int dotIndex = filePath.lastIndexOf('.');
         if (dotIndex == -1 || dotIndex == filePath.length() - 1) {
@@ -46,6 +63,15 @@ public class ImageProcessor {
         return filePath.substring(dotIndex + 1);
     }
 
+    /**
+     * Saves an image to the specified file path with the given output format and compression quality.
+     *
+     * @param image       The BufferedImage to save.
+     * @param outputPath  The path where the image will be saved.
+     * @param outputFormat The output image format (e.g., "jpg", "png").
+     * @param quality     The compression quality (0.0 - 1.0).
+     * @throws IOException If an error occurs while saving the image.
+     */
     public void saveImage(BufferedImage image, String outputPath, String outputFormat, float quality) throws IOException {
         File file = new File(outputPath);
         Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(outputFormat);

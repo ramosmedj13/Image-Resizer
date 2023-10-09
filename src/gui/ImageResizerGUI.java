@@ -8,13 +8,27 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+/**
+ * The ImageResizerGUI class is a JavaFX application that provides a graphical user interface (GUI) for resizing images.
+ * Users can input the image path, target width, and height, and the application will resize the image and display the result.
+ */
 public class ImageResizerGUI extends Application {
     private ImageResizerApp app;
 
+    /**
+     * The main method of the application that launches the GUI.
+     *
+     * @param args The command-line arguments (not used in this application).
+     */
     public static void main(String[] args) {
         launch(args);
     }
 
+    /**
+     * Initializes the ImageResizerGUI application.
+     *
+     * @param primaryStage The primary stage for the GUI.
+     */
     @Override
     public void start(Stage primaryStage) {
         app = new ImageResizerApp();

@@ -5,18 +5,28 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * The ImageResizerApp class is responsible for managing the command-line interface (CLI) for image resizing.
+ */
 public class ImageResizerApp {
     private ImageResizer imageResizer;
     private ImageProcessor imageProcessor;
     private static final Logger logger = Logger.getLogger(ImageResizerApp.class.getName());
+    Scanner scanner;
 
+    /**
+     * Initializes an instance of ImageResizerApp.
+     */
     public ImageResizerApp() {
         imageResizer = new ImageResizer();
         imageProcessor = new ImageProcessor();
+        scanner = new Scanner(System.in);
     }
 
+    /**
+     * Starts the image resizing application and guides the user through the resizing process.
+     */
     public void start() {
-        Scanner scanner = new Scanner(System.in);
         System.out.println("Welcome to the ImageResizer");
 
         try {
@@ -65,6 +75,12 @@ public class ImageResizerApp {
         }
     }
 
+    /**
+     * Checks if the provided output format is valid.
+     *
+     * @param format The output format to check.
+     * @return {@code true} if the format is valid, {@code false} otherwise.
+     */
     private boolean isValidFormat(String format) {
         String[] validFormats = {"JPG", "JPEG", "PNG", "GIF", "BMP", "TIFF"};
         for (String validFormat : validFormats) {
@@ -76,6 +92,16 @@ public class ImageResizerApp {
         return false;
     }
 
+    /**
+     * Resizes an image and saves it to the specified output path with the given parameters.
+     *
+     * @param imagePath    The path to the input image.
+     * @param targetWidth  The desired width of the resized image.
+     * @param targetHeight The desired height of the resized image.
+     * @param outputPath   The path where the resized image will be saved.
+     * @param outputFormat The output format for the resized image (e.g., "JPG", "PNG").
+     * @param quality      The compression quality (0.0 - 1.0) for the resized image.
+     */
     public void resizeAndSaveImage(String imagePath, int targetWidth, int targetHeight, String outputPath,
                                    String outputFormat, float quality) {
         try {
