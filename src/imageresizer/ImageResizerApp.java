@@ -1,17 +1,18 @@
 package imageresizer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.image.BufferedImage;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * The ImageResizerApp class is responsible for managing the command-line interface (CLI) for image resizing.
  */
 public class ImageResizerApp {
-    private ImageResizer imageResizer;
-    private ImageProcessor imageProcessor;
-    private static final Logger logger = Logger.getLogger(ImageResizerApp.class.getName());
+    private final ImageResizer imageResizer;
+    private final ImageProcessor imageProcessor;
+    private static final Logger logger = LoggerFactory.getLogger(ImageProcessor.class);
     Scanner scanner;
 
     /**
@@ -56,19 +57,16 @@ public class ImageResizerApp {
                 throw new IllegalArgumentException("Invalid output format.");
             }
 
-            System.out.print("Enter the compression quality (0.0 - 1.0): ");
-            float quality = scanner.nextFloat();
-
-            if (quality < 0.0 || quality > 1.0) {
-                throw new IllegalArgumentException("Invalid compression quality.");
-            }
-
             BufferedImage resizedImage = imageResizer.resizeImage(image, targetWidth, targetHeight);
 
-            imageProcessor.saveImage(resizedImage, outputPath, outputFormat, quality);
+            imageProcessor.saveImage(resizedImage, outputPath, outputFormat);
             System.out.println("Your image has been resized and saved successfully.");
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid input: {}", e.getMessage());
+            System.err.println("Invalid input: " + e.getMessage());
+            return;
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "An error occurred: " + e.getMessage(), e);
+            logger.error("Error loading image: {}", e.getMessage(), e);
             System.err.println("An error occurred. Please check the logs for details.");
         } finally {
             scanner.close();
@@ -100,16 +98,15 @@ public class ImageResizerApp {
      * @param targetHeight The desired height of the resized image.
      * @param outputPath   The path where the resized image will be saved.
      * @param outputFormat The output format for the resized image (e.g., "JPG", "PNG").
-     * @param quality      The compression quality (0.0 - 1.0) for the resized image.
      */
     public void resizeAndSaveImage(String imagePath, int targetWidth, int targetHeight, String outputPath,
-                                   String outputFormat, float quality) {
+                                   String outputFormat) {
         try {
             BufferedImage image = imageProcessor.loadImage(imagePath);
             BufferedImage resizedImage = imageResizer.resizeImage(image, targetWidth, targetHeight);
-            imageProcessor.saveImage(resizedImage, outputPath, outputFormat, quality);
+            imageProcessor.saveImage(resizedImage, outputPath, outputFormat);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "An error occurred: " + e.getMessage(), e);
+            logger.error("Error loading image: {}", e.getMessage(), e);
         }
     }
 }

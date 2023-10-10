@@ -45,6 +45,8 @@ public class ImageResizerGUI extends Application {
         TextField widthTextField = new TextField();
         Label heightLabel = new Label("Target Height:");
         TextField heightTextField = new TextField();
+        Label outputPathLabel = new Label("Output Path:");
+        TextField outputPathTextField = new TextField();
         Button resizeButton = new Button("Resize");
         Label outputLabel = new Label("");
         ProgressIndicator progressIndicator = new ProgressIndicator();
@@ -57,6 +59,7 @@ public class ImageResizerGUI extends Application {
                 imagePathLabel, imagePathTextField,
                 widthLabel, widthTextField,
                 heightLabel, heightTextField,
+                outputPathLabel, outputPathTextField,
                 resizeButton,
                 outputLabel,
                 progressBox
@@ -66,16 +69,15 @@ public class ImageResizerGUI extends Application {
             String imagePath = imagePathTextField.getText();
             int width = Integer.parseInt(widthTextField.getText());
             int height = Integer.parseInt(heightTextField.getText());
-            String outputPath = "output.jpg";
+            String outputPath = outputPathTextField.getText();
             String outputFormat = "JPG";
-            float quality = 1.0f;
 
             try {
                 progressBox.setVisible(true); // Show progress bar
                 Task<Void> resizingTask = new Task<>() {
                     @Override
-                    protected Void call() throws Exception {
-                        app.resizeAndSaveImage(imagePath, width, height, outputPath, outputFormat, quality);
+                    protected Void call() {
+                        app.resizeAndSaveImage(imagePath, width, height, outputPath, outputFormat);
                         return null;
                     }
                 };
@@ -86,7 +88,18 @@ public class ImageResizerGUI extends Application {
                 });
 
                 resizingTask.setOnFailed(e -> {
-                    outputLabel.setText("Error: " + e.getSource().getException().getMessage());
+                    String errorMessage = "Error: ";
+                    Throwable exception = resizingTask.getException();
+
+                    if (exception != null) {
+                        errorMessage += exception.getMessage();
+                        // You can also log the exception for debugging purposes
+                        exception.printStackTrace();
+                    } else {
+                        errorMessage += "An unknown error occurred.";
+                    }
+
+                    outputLabel.setText(errorMessage);
                     progressBox.setVisible(false); // Hide progress bar
                 });
 

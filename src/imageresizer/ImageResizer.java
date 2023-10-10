@@ -18,6 +18,10 @@ public class ImageResizer {
      * @return The resized image.
      */
     public BufferedImage resizeImage(BufferedImage image, int targetWidth, int targetHeight) {
+        if (image == null) {
+            return null;
+        }
+
         return Scalr.resize(image, Scalr.Method.QUALITY, targetWidth, targetHeight, Scalr.OP_ANTIALIAS);
     }
 }
