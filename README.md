@@ -8,7 +8,7 @@ The Image Resizer is a Java application that allows users to resize images effic
 
 - **Efficient Image Resizing**: The Image Resizer uses the ImgScalr library to efficiently resize images while preserving their quality.
 
-- **Supports Multiple Formats**: The application supports various image formats, including JPG, JPEG, PNG, GIF, BMP, and TIFF.
+- **Supports Multiple Formats**: The application supports various image formats, including JPG, JPEG, PNG, BMP, and TIFF.
 
 - **User-Friendly GUI**: The GUI provides an intuitive interface for resizing images with real-time feedback.
 
